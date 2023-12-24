@@ -1,8 +1,7 @@
-from fastapi import FastAPI
-from pymongo.mongo_client import MongoClient
-from pymongo.server_api import ServerApi
+from fastapi import FastAPI, Body
 
-from settings import mongodb_uri, port
+from database import ping_database, get_database
+from models import FormModel
 
 
 app = FastAPI(
@@ -20,22 +19,6 @@ app = FastAPI(
         "url": "https://github.com/git/git-scm.com/blob/main/MIT-LICENSE.txt",
     },
 )
-client = MongoClient(mongodb_uri, port, server_api=ServerApi("1"))
-
-
-def ping_database():
-    # Send a ping to confirm a successful connection
-    try:
-        client.admin.command("ping")
-        msg = "Pinged your deployment. You successfully connected to MongoDB!"
-        print(msg)
-        return "connected to database!"
-    except Exception as e:
-        print(e)
-        return "unable to connect to database!"
-
-
-ping_database()
 
 
 @app.get("/", tags=["Welcome"])
@@ -48,5 +31,7 @@ async def welcome():
 
 
 @app.post("/form", tags=["Subscription form"])
-async def form():
+async def step_form_post(form_data: FormModel = Body(...)):
+    db_name = get_database()
+    print(db_name)
     return {"msg": "subscription form"}
