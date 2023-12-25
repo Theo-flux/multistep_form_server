@@ -1,6 +1,7 @@
-from fastapi import FastAPI, Body
+from fastapi import FastAPI, Body, Request
+from motor.motor_asyncio import AsyncIOMotorClient
 
-from database import ping_database, get_database
+from settings import mongodb_uri, port, db_name
 from models import FormModel
 
 
@@ -21,9 +22,25 @@ app = FastAPI(
 )
 
 
+@app.on_event("startup")
+async def start_db_client():
+    # on event startup, connect to the mongodb client
+    try:
+        app.mongodb_client = AsyncIOMotorClient(mongodb_uri, port)
+        app.mongodb = app.mongodb_client[db_name]
+        app.mongodb_status = "connected to database"
+    except Exception as e:
+        app.mongodb_status = "unable to connect to database"
+
+
+@app.on_event("shutdown")
+async def shudown_db_client():
+    app.mongodb_client.close()
+
+
 @app.get("/", tags=["Welcome"])
-async def welcome():
-    connection_status = ping_database()
+async def welcome(request: Request):
+    connection_status = request.app.mongodb_status
     return {
         "message": "Welcome to my Multistep Form API Service",
         "database_status": connection_status,
@@ -31,7 +48,5 @@ async def welcome():
 
 
 @app.post("/form", tags=["Subscription form"])
-async def step_form_post(form_data: FormModel = Body(...)):
-    db_name = get_database()
-    print(db_name)
+async def step_form_post(request: Request, form_data: FormModel = Body(...)):
     return {"msg": "subscription form"}
