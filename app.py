@@ -22,7 +22,7 @@ app = FastAPI(
     },
 )
 
-origins = ["http://localhost:5173", "https://veeplush-frontend.vercel.app"]
+origins = ["http://localhost:5173", "https://multistep-form-client.vercel.app"]
 
 app.add_middleware(
     CORSMiddleware,
