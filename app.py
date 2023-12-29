@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Body, Request
+from fastapi.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 
 from settings import mongodb_uri, port, db_name
@@ -19,6 +20,16 @@ app = FastAPI(
         "name": "MIT",
         "url": "https://github.com/git/git-scm.com/blob/main/MIT-LICENSE.txt",
     },
+)
+
+origins = ["http://localhost:5173", "https://veeplush-frontend.vercel.app"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
@@ -49,4 +60,4 @@ async def welcome(request: Request):
 
 @app.post("/form", tags=["Subscription form"])
 async def step_form_post(request: Request, form_data: FormModel = Body(...)):
-    return {"msg": "subscription form"}
+    return {"msg": "subscription form", "data": form_data}

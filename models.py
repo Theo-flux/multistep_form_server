@@ -1,5 +1,5 @@
 from typing import List, Optional
-from uuid import uuid5
+from uuid import uuid4, UUID
 from pydantic import BaseModel, Field, EmailStr
 
 
@@ -10,14 +10,17 @@ class PlanModel(BaseModel):
 
 class AddonsModel(BaseModel):
     addon: str
-    description: str
     amount: int
 
 
 class FormModel(BaseModel):
-    id: str = Field(default_factory=uuid5, alias="_id")
+    id: UUID = Field(default_factory=uuid4, alias="_id")
     name: str = Field(...)
-    email: EmailStr()
+    email: EmailStr() = Field(...)
+    phone: str = Field(...)
     billing: str = Field(...)
     subscription: PlanModel = Field(...)
     add_ons: List[AddonsModel] | List
+
+    class Config:
+        populate_by_name = True
