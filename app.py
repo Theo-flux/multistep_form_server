@@ -37,7 +37,7 @@ app.add_middleware(
 async def start_db_client():
     # on event startup, connect to the mongodb client
     try:
-        app.mongodb_client = AsyncIOMotorClient(mongodb_uri)
+        app.mongodb_client = AsyncIOMotorClient(mongodb_uri, 8000)
         app.mongodb = app.mongodb_client[db_name]
         app.mongodb_status = "connected to database"
     except Exception as e:
