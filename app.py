@@ -2,7 +2,7 @@ from fastapi import FastAPI, Body, Request
 from fastapi.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 
-from settings import mongodb_uri, port, db_name
+from settings import mongodb_uri, db_name
 from models import FormModel
 
 
@@ -37,7 +37,7 @@ app.add_middleware(
 async def start_db_client():
     # on event startup, connect to the mongodb client
     try:
-        app.mongodb_client = AsyncIOMotorClient(mongodb_uri, port)
+        app.mongodb_client = AsyncIOMotorClient(mongodb_uri)
         app.mongodb = app.mongodb_client[db_name]
         app.mongodb_status = "connected to database"
     except Exception as e:
@@ -60,4 +60,5 @@ async def welcome(request: Request):
 
 @app.post("/form", tags=["Subscription form"])
 async def step_form_post(request: Request, form_data: FormModel = Body(...)):
+    request.app.mongodb
     return {"msg": "subscription form", "data": form_data}
